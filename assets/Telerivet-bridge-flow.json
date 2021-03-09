@@ -1,0 +1,109 @@
+{
+    "description": "IVR",
+    "states": [
+      {
+        "name": "Trigger",
+        "type": "trigger",
+        "transitions": [
+          {
+            "event": "incomingMessage"
+          },
+          {
+            "event": "incomingCall"
+          },
+          {
+            "next": "OutboundCallToBeneficiary",
+            "event": "incomingRequest"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": -200,
+            "y": 60
+          }
+        }
+      },
+      {
+        "name": "OutboundCallToBeneficiary",
+        "type": "make-outgoing-call-v2",
+        "transitions": [
+          {
+            "next": "sayMessage",
+            "event": "answered"
+          },
+          {
+            "event": "busy"
+          },
+          {
+            "next": "sayMessage",
+            "event": "noAnswer"
+          },
+          {
+            "event": "failed"
+          }
+        ],
+        "properties": {
+          "machine_detection_speech_threshold": "2400",
+          "detect_answering_machine": false,
+          "offset": {
+            "x": -10,
+            "y": 380
+          },
+          "recording_channels": "mono",
+          "timeout": 60,
+          "machine_detection": "Enable",
+          "trim": "do-not-trim",
+          "record": false,
+          "machine_detection_speech_end_threshold": "1200",
+          "machine_detection_timeout": "30",
+          "from": "{{flow.channel.address}}",
+          "to": "{{contact.channel.address}}",
+          "machine_detection_silence_timeout": "5000"
+        }
+      },
+      {
+        "name": "sayMessage",
+        "type": "say-play",
+        "transitions": [
+          {
+            "next": "CallFlexNumber",
+            "event": "audioComplete"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 0,
+            "y": 660
+          },
+          "loop": 1,
+          "say": "Hello, thanks for reaching out. We are queuing your request. Someone will reach out to you soon!"
+        }
+      },
+      {
+        "name": "CallFlexNumber",
+        "type": "connect-call-to",
+        "transitions": [
+          {
+            "event": "callCompleted"
+          },
+          {
+            "event": "hangup"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 20,
+            "y": 900
+          },
+          "caller_id": "{{contact.channel.address}}",
+          "noun": "number",
+          "to": "+15125258090",
+          "timeout": 30
+        }
+      }
+    ],
+    "initial_state": "Trigger",
+    "flags": {
+      "allow_concurrent_calls": true
+    }
+  }

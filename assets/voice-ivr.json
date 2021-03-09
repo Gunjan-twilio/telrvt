@@ -1,0 +1,72 @@
+{
+    "description": "IVR for creating a Flex voice task",
+    "states": [
+      {
+        "name": "Trigger",
+        "type": "trigger",
+        "transitions": [
+          {
+            "event": "incomingMessage"
+          },
+          {
+            "next": "splitNHCROrNRC",
+            "event": "incomingCall"
+          },
+          {
+            "event": "incomingRequest"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 0,
+            "y": -10
+          }
+        }
+      },
+      {
+        "name": "SendCallToAgent",
+        "type": "send-to-flex",
+        "transitions": [
+          {
+            "event": "callComplete"
+          },
+          {
+            "event": "failedToEnqueue"
+          },
+          {
+            "event": "callFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 70,
+            "y": 590
+          },
+          "workflow": "WW79b4a975eb2a8e5922b031440bda1edc",
+          "channel": "TC91adf947a558dd2129ad2898ca082a21",
+          "attributes": "{ \"type\": \"inbound\", \"name\": \"{{trigger.call.From}}\" }"
+        }
+      },
+      {
+        "name": "splitNHCROrNRC",
+        "type": "split-based-on",
+        "transitions": [
+          {
+            "next": "SendCallToAgent",
+            "event": "noMatch"
+          }
+        ],
+        "properties": {
+          "input": "{{flow.channel.address}}",
+          "offset": {
+            "x": 20,
+            "y": 230
+          }
+        }
+      }
+    ],
+    "initial_state": "Trigger",
+    "flags": {
+      "allow_concurrent_calls": true
+    }
+  }
